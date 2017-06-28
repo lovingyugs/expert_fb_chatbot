@@ -6,9 +6,6 @@ var CronJob = require('cron').CronJob;
 var waterfall = require('async-waterfall');
 require('date-utils');
 var app = express();
-//var USER_ACCESS_TOKEN = 'EAALlNCUBpy8BAIqU931eTSrypytCjf0hcBdpssDyTxAjnZACZAOjRsFXQv1j8Gjqyu9egXCqEcVQe1Jn3ECtvB7Wcm37C7OUTpAhJfg30tZBB8p5WHGZA3jypv7daj7rEuy39Jvy50KZBd7kEibP0tc4CytE4VR04E4CjdZAxpZBwZDZD';
-// Amarujala News EAALlQ2OEzrUBAA3G8FHOcqmRXiD9dMpulEeaozEoNhqw7uNoitrZCcIGNVGj1r3ZCWlxLmiUbdLbsZAMW6t0Ue74ifGtWosb0WtzIkbZCs4LG01zmtLBvxv27SxnGyN6fIAVGpTS0jTyCnAiZCLshE12sGu3JJVGOye7eH3IIgwZDZD
-
 var MongoClient = require('mongodb').MongoClient;
 var mongo_db;
 var url = config.database;
@@ -49,7 +46,8 @@ app.get('/assets/:id', function (req, res) {
 app.get('/', function (req, res) {
   // res.send('This is TestBot Server2');
   console.log("came");
-  res.sendFile(__dirname + '/test.html');
+  res.send('Server running properly');
+  //res.sendFile(__dirname + '/test.html');
 });
 
 // Facebook Webhook
@@ -668,25 +666,8 @@ function validMessage(recipientId, text) {
 
     get_first_name(recipientId, function (callback) {
 
-
-      // message2 = {
-      //             // "text": "Hi!! Welcome to Amarujala chatbot!! To get a hang of things, try these Latest Stories that we have and subscribe them",
-      //                 "attachment" : {
-      //                     "type" : "template",
-      //                     "payload": {
-      //                         "template_type": "button",
-      //                         "text": "Hi "+callback+"!! I'm Amarujala News-Bot, here to help you!! You can read news on any topic just by typing here."                                }
-
-
-      //                 }
-      //             }
-
       sendMessage(recipientId, { text: "Hi " + callback + "!! I'm Expert Messenger, I am here to solve your queries. Here you can type anything and we'll search it for you." });
-
-
-
       message = {
-        // "text": "Hi!! Welcome to Amarujala chatbot!! To get a hang of things, try these Latest Stories that we have and subscribe them",
         "attachment": {
           "type": "template",
           "payload": {
@@ -739,12 +720,10 @@ function validMessage(recipientId, text) {
 
   var movies = config.movies;
   var between = config.between;
-  // for (var i = 0; i < values.length; i++) {
-  //   values[i] = values[i].toLowerCase();
-  // }
+
   if (values.indexOf('movie') || values.indexOf('movies') || values.indexOf('movie-') || values.indexOf('movies-')) {
     console.log('in movies');
-      
+
     if (movies.indexOf(values.join(' ').toLowerCase()) >= 0) {
       getLatestMovieList(recipientId);
       return true;
@@ -752,34 +731,21 @@ function validMessage(recipientId, text) {
       if (between.indexOf(values[1]) >= 0) {
         //getMovieDetails(recipientId, values[2]);
         if (between.indexOf(values[2]) >= 0) {
-          getMovieDetails(recipientId, (values.slice(3,values.length)).join(' ').toString());
+          getMovieDetails(recipientId, (values.slice(3, values.length)).join(' ').toString());
           return true;
         } else
-          getMovieDetails(recipientId, (values.slice(2,values.length)).join(' ').toString());
+          getMovieDetails(recipientId, (values.slice(2, values.length)).join(' ').toString());
         return true;
       } else {
-        console.log('movie last else');
-        if(!values[1]){
+        if (!values[1]) {
 
-         getLatestMovieList(recipientId);
-        }
-        else
-          getMovieDetails(recipientId, (values.slice(1,values.length)).join(' ').toString());
+          getLatestMovieList(recipientId);
+        } else
+          getMovieDetails(recipientId, (values.slice(1, values.length)).join(' ').toString());
         return true;
       }
     }
   }
-
-  // if (values.length === 3 && values[0].toLowerCase() === 'latest' && values[1].toLowerCase() === 'movie' && values[2].toLowerCase() === 'list') {
-
-  //   console.log("typed for latest");
-  //   getLatestMovieList(recipientId);
-  //   // return(getLatestMovieList(message));
-  //   //sendMessage(recipientId, message);
-  //   return true;
-  // }
-
-
 
   if (values.length == 2 && values[0].toLowerCase() === 'train') {
     if (values[1].toLowerCase() === 'number') {
@@ -793,10 +759,7 @@ function validMessage(recipientId, text) {
 
   if (values.length === 2 && values[0].toLowerCase() === 'tno' || values[0].toLowerCase() === 'trainnumber') {
     console.log("typed for train number");
-    // getLatestMovieList(recipientId);
     getTrainDetails(recipientId, values[1].toLowerCase());
-    // return(getLatestMovieList(message));
-    //sendMessage(recipientId, message);
     return true;
   }
 
@@ -816,20 +779,34 @@ function validMessage(recipientId, text) {
 
 
 
+
+/**
+ * Get Train Details
+ * @param  {String} recipientId  LoggedOn User Messenger ID
+ * @param  {String} tNo          Train number  
+ */
 function getTrainDetails(recipientId, tNo) {
   console.log(tNo);
   request({
     url: 'http://www.coupontodeals.net/status.asmx/GetTrainSchedule?tno=' + tNo,
     method: 'GET'
   }, function (error, response, body) {
-    if (error) {
-      console(error);
+    if (error || body === 'The service is unavailable.') {
+      console.log(error);
+      sendMessage(recipientId, { text: "Sorry, our service is down for now!!" });
+      return false;
     }
     // var res = JSON.parse(body);
     console.log(body);
   })
 }
 
+
+/**
+ * Hotel Details
+ * @param  {String} recipientId LoggedOn User Messenger ID
+ * @param  {[type]} cityCode    City Code in which we need to find hotels
+ */
 function getHotels(recipientId, cityCode) {
   sendMessage(recipientId, { text: "Just a sec, looking that up..." });
 
@@ -855,8 +832,10 @@ function getHotels(recipientId, cityCode) {
     url: 'http://www.coupontodeals.net/status.asmx/HotelSearch?cityCode=' + cityCode.toUpperCase() + '&checkIn=' + checkIn + '&checkOut=' + checkOut,
     method: 'GET',
   }, function (error, response, body) {
-    if (error) {
-      console(error);
+    if (error || body === 'The service is unavailable.') {
+      console.log(error);
+      sendMessage(recipientId, { text: "Sorry, our service is down for now!!" });
+      return false;
     }
     var res = JSON.parse(body);
     console.log(res);
@@ -890,15 +869,18 @@ function getHotels(recipientId, cityCode) {
   })
 }
 
-function getLatestMovieList(recipientId) {
 
+
+
+function getLatestMovieList(recipientId) {
 
   request({
     url: 'http://www.coupontodeals.net/status.asmx/LatestMoviesList',
     method: 'GET'
   }, function (error, response, body) {
-    if (error) {
-      console.log("589 erorr");
+    if (error || body === 'The service is unavailable.') {
+      console.log(error);
+      sendMessage(recipientId, { text: "Sorry, our service is down for now!!" });
       return false;
     } else {
       var res = JSON.parse(body);
@@ -906,12 +888,6 @@ function getLatestMovieList(recipientId) {
       let jsonobj = [];
       let buttons = [];
       for (i = 0; i < res.length; i++) {
-        // buttons.push({
-        //     "type": "postback",
-        //     "title": res[i],movieName,
-        //     "payload": "Movie Details - "+res[i],movieName,
-
-        // });  
 
         jsonobj.push({
           "title": res[i].movieName,
@@ -926,12 +902,6 @@ function getLatestMovieList(recipientId) {
           }]
         });
       }
-      // jsonobj.push(buttons);
-
-      // jsonobj.push(buttons);
-
-      // jsonobj.push(buttons);
-      // console.log(jsonobj[0].buttons);
       message = {
         "attachment": {
           "type": "template",
@@ -952,21 +922,20 @@ function getMovieDetails(recipientId, movieName) {
   console.log("came in details");
 
   var title = movieName;
-  // console.log("842 - " + title);
-  //title = "Dear Zindagi";
   console.log(title);
   request({
-    url: 'http://api.themoviedb.org/3/search/movie?api_key=3134e244598f601d15465739202c0387&query=' + movieName
+    url: 'http://api.themoviedb.org/3/search/movie?api_key=' + config.movie_api_key + '&query=' + movieName
   }, function (error, response, body) {
-    //console.log(body);
-    if (error) {
-      console.log("957 erorr");
+
+   if (error || body === 'The service is unavailable.') {
+      console.log(error);
+      sendMessage(recipientId, { text: "Sorry, our service is down for now!!" });
       return false;
     } else {
       var obj = JSON.parse(body);
       //console.log(res);
       var res = obj.results;
-      console.log(res);
+      //console.log(res);
       var jsonobj = [];
       for (i = 0; i < res.length; i++) {
         //console.log(res[i].id);
@@ -982,9 +951,9 @@ function getMovieDetails(recipientId, movieName) {
             "payload": "Menu"
           }]
         });
-        console.log("doen" + i);
+        console.log("done" + i);
       }
-      console.log(jsonobj);
+      //console.log(jsonobj);
       message = {
         "attachment": {
           "type": "template",
@@ -1002,16 +971,16 @@ function getMovieDetails(recipientId, movieName) {
 }
 
 
+
 //latest headlines
 function latest_stories(recipientId) {
-
 
   request({
     url: 'http://api.amarujala.com/v1/recentnews/',
     method: 'GET'
   }, function (error, response, body) {
     if (error)
-      console.log("589 erorr");
+      console.log("589 error");
     else {
       var res = JSON.parse(body);
 
@@ -1052,20 +1021,10 @@ function latest_stories(recipientId) {
       sendMessage(recipientId, message);
 
       return true;
-
     }
 
   });
 }
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1083,7 +1042,7 @@ function popular_news(recipientId) {
     method: 'GET'
   }, function (error, response, body) {
     if (error)
-      console.log("695 erorr");
+      console.log("695 error");
     else {
       var res = JSON.parse(body);
 
@@ -1153,7 +1112,7 @@ function search_by_tag(recipientId, typed_word) {
     method: 'GET'
   }, function (error, response, body) {
     if (error) {
-      console.log("797 erorr");
+      console.log("695 error");
       console.log(error);
     } else {
       var res = JSON.parse(body);

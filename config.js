@@ -14,10 +14,11 @@ module.exports = {
 
   'database': database,
   'port': process.env.PORT || 8000,
-  'access_token':'EAALlNCUBpy8BAFYcKhihZAABZAnYfXBnlaIxCctFuVBRDaRXkAQcJ7lqinDjwy4OkEhkjSusZCyRWVMKiZAsw2e1a1qAjgaRsaE3M4jKoorMn3LhzOczHOadOrkfWnafk9Qrv59MvF5rWqWOSLntZA0uDYbYUbUuPJxZAERU7ZAjAZDZD', 
-  'verify_token':'expert_fb_chatbot',
+  'access_token': 'EAALlNCUBpy8BAFYcKhihZAABZAnYfXBnlaIxCctFuVBRDaRXkAQcJ7lqinDjwy4OkEhkjSusZCyRWVMKiZAsw2e1a1qAjgaRsaE3M4jKoorMn3LhzOczHOadOrkfWnafk9Qrv59MvF5rWqWOSLntZA0uDYbYUbUuPJxZAERU7ZAjAZDZD',
+  'verify_token': 'expert_fb_chatbot',
+  'movie_api_key': '3134e244598f601d15465739202c0387',
   'path': __dirname,
   'movies': ['latest movie list', 'movie list', 'latest movies', 'latest movie', 'latest movie list', 'movie list', 'movies list', 'movies lists'],
-  'between': ['in','of','-',' -','- ','detail','details','name','names','with']
+  'between': ['in', 'of', '-', ' -', '- ', 'detail', 'details', 'name', 'names', 'with']
     //"secretKey":"Yoursecretkey"
 }
